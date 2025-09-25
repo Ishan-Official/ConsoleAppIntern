@@ -1,153 +1,404 @@
 ﻿using System;
 
-class Program
+namespace StudentGradeManagementSystem
 {
-    static void Main(string[] args)
+    class Program
     {
-        bool exit = false;
+        // Maximum number of students allowed
+        const int MAX_STUDENTS = 50;
 
-        while (!exit)
+        // Arrays to store student names and grades
+        static string[] studentNames = new string[MAX_STUDENTS];
+        static double[,] studentGrades = new double[MAX_STUDENTS, 5]; // max 5 subjects
+        static int studentCount = 0;
+
+        static void Main(string[] args)
         {
-            Console.WriteLine("\n=== Assignment 6 Menu ===");
-            Console.WriteLine("1. Print Multiplication Tables (1-10)");
-            Console.WriteLine("2. Number Guessing Game (1-100)");
-            Console.WriteLine("3. Sum of Even Numbers (1-100)");
-            Console.WriteLine("4. Pattern Printing");
-            Console.WriteLine("5. Exit");
-            Console.Write("Choose an option (1-5): ");
+            int choice;
 
-            string choice = Console.ReadLine();
-
-            switch (choice)
+            do
             {
-                case "1":
-                    PrintMultiplicationTables();
-                    break;
-                case "2":
-                    NumberGuessingGame();
-                    break;
-                case "3":
-                    SumEvenNumbers();
-                    break;
-                case "4":
-                    PatternPrinting();
-                    break;
-                case "5":
-                    exit = true;
-                    Console.WriteLine("Exiting program. Goodbye!");
-                    break;
-                default:
-                    Console.WriteLine("Invalid choice. Try again.");
-                    break;
+                Console.Clear();
+                Console.WriteLine("=== Student Grade Management System ===");
+                Console.WriteLine("1. Add Student");
+                Console.WriteLine("2. Enter Grades");
+                Console.WriteLine("3. Calculate Average");
+                Console.WriteLine("4. Display Report");
+                Console.WriteLine("5. Exit");
+                Console.Write("Enter your choice: ");
+
+                // Input validation
+                if (!int.TryParse(Console.ReadLine(), out choice))
+                {
+                    Console.WriteLine("Invalid input. Please enter a number.");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                switch (choice)
+                {
+                    case 1:
+                        AddStudent();
+                        break;
+                    case 2:
+                        EnterGrades();
+                        break;
+                    case 3:
+                        CalculateAverage();
+                        break;
+                    case 4:
+                        DisplayReport();
+                        break;
+                    case 5:
+                        Console.WriteLine("Exiting... Goodbye!");
+                        break;
+                    default:
+                        Console.WriteLine("Invalid choice. Try again.");
+                        break;
+                }
+
+                if (choice != 5)
+                {
+                    Console.WriteLine("\nPress any key to return to the menu...");
+                    Console.ReadKey();
+                }
+
+            } while (choice != 5);
+        }
+
+        // Add new student
+        static void AddStudent()
+        {
+            if (studentCount >= MAX_STUDENTS)
+            {
+                Console.WriteLine("Maximum student limit reached!");
+                return;
+            }
+
+            Console.Write("Enter student name: ");
+            string name = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine("Name cannot be empty.");
+                return;
+            }
+
+            studentNames[studentCount] = name;
+            studentCount++;
+            Console.WriteLine($"Student '{name}' added successfully.");
+        }
+
+        // Enter grades for a student
+        static void EnterGrades()
+        {
+            if (studentCount == 0)
+            {
+                Console.WriteLine("No students available. Please add a student first.");
+                return;
+            }
+
+            Console.Write("Enter student index (0 - " + (studentCount - 1) + "): ");
+            if (!int.TryParse(Console.ReadLine(), out int index) || index < 0 || index >= studentCount)
+            {
+                Console.WriteLine("Invalid student index.");
+                return;
+            }
+
+            Console.WriteLine($"Entering grades for {studentNames[index]}:");
+
+            for (int i = 0; i < 5; i++)
+            {
+                Console.Write($"Enter grade for subject {i + 1} (0-100, or -1 to skip): ");
+                if (!double.TryParse(Console.ReadLine(), out double grade) || grade < -1 || grade > 100)
+                {
+                    Console.WriteLine("Invalid grade. Please enter a number between 0-100, or -1 to skip.");
+                    i--; // retry
+                    continue;
+                }
+
+                if (grade == -1) break; // stop entering grades
+                studentGrades[index, i] = grade;
             }
         }
-    }
 
-    // === 1. Multiplication Tables (1-10) ===
-    static void PrintMultiplicationTables()
-    {
-        Console.WriteLine("\n--- Multiplication Tables (1-10) ---");
-        for (int i = 1; i <= 10; i++)
+        // Calculate average grade for each student
+        static void CalculateAverage()
         {
-            Console.WriteLine($"\nTable of {i}:");
-            for (int j = 1; j <= 10; j++)
+            if (studentCount == 0)
             {
-                Console.WriteLine($"{i} x {j} = {i * j}");
+                Console.WriteLine("No students available.");
+                return;
+            }
+
+            Console.WriteLine("=== Student Averages ===");
+            for (int i = 0; i < studentCount; i++)
+            {
+                double total = 0;
+                int count = 0;
+
+                for (int j = 0; j < 5; j++)
+                {
+                    if (studentGrades[i, j] > 0)
+                    {
+                        total += studentGrades[i, j];
+                        count++;
+                    }
+                }
+
+                double average = count > 0 ? total / count : 0;
+                Console.WriteLine($"{studentNames[i]} - Average: {average:F2}");
             }
         }
-    }
 
-    // === 2. Number Guessing Game ===
-    static void NumberGuessingGame()
-    {
-        Random rand = new Random();
-        int secretNumber = rand.Next(1, 101);
-        int attempts = 0;
-        bool guessed = false;
-
-        Console.WriteLine("\n--- Number Guessing Game ---");
-        Console.WriteLine("Guess the number between 1 and 100!");
-
-        while (!guessed)
+        // Display student report with grades
+        static void DisplayReport()
         {
-            Console.Write("Enter your guess: ");
-            if (int.TryParse(Console.ReadLine(), out int guess))
+            if (studentCount == 0)
             {
-                attempts++;
-                if (guess == secretNumber)
-                {
-                    Console.WriteLine($"🎉 Correct! You guessed it in {attempts} attempts.");
-                    guessed = true;
-                }
-                else if (guess < secretNumber)
-                {
-                    Console.WriteLine("Too low! Try again.");
-                }
-                else
-                {
-                    Console.WriteLine("Too high! Try again.");
-                }
+                Console.WriteLine("No students available.");
+                return;
             }
-            else
+
+            Console.WriteLine("=== Student Report ===");
+            for (int i = 0; i < studentCount; i++)
             {
-                Console.WriteLine("Invalid input. Please enter a number.");
+                Console.Write($"{i}. {studentNames[i]} - Grades: ");
+                for (int j = 0; j < 5; j++)
+                {
+                    if (studentGrades[i, j] > 0)
+                        Console.Write(studentGrades[i, j] + " ");
+                }
+                Console.WriteLine();
             }
-        }
-    }
-
-    // === 3. Sum of Even Numbers ===
-    static void SumEvenNumbers()
-    {
-        int sum = 0;
-        for (int i = 2; i <= 100; i += 2)
-        {
-            sum += i;
-        }
-        Console.WriteLine($"\nSum of even numbers between 1 and 100: {sum}");
-    }
-
-    // === 4. Pattern Printing ===
-    static void PatternPrinting()
-    {
-        Console.WriteLine("\n--- Pattern Printing ---");
-        Console.WriteLine("1. Right-Angled Triangle");
-        Console.WriteLine("2. Diamond");
-        Console.Write("Choose a pattern (1-2): ");
-        string choice = Console.ReadLine();
-
-        Console.Write("Enter number of rows: ");
-        int rows = Convert.ToInt32(Console.ReadLine());
-
-        switch (choice)
-        {
-            case "1":
-                for (int i = 1; i <= rows; i++)
-                {
-                    Console.WriteLine(new string('*', i));
-                }
-                break;
-
-            case "2":
-                // Upper part
-                for (int i = 1; i <= rows; i++)
-                {
-                    Console.Write(new string(' ', rows - i));
-                    Console.WriteLine(new string('*', 2 * i - 1));
-                }
-                // Lower part
-                for (int i = rows - 1; i >= 1; i--)
-                {
-                    Console.Write(new string(' ', rows - i));
-                    Console.WriteLine(new string('*', 2 * i - 1));
-                }
-                break;
-
-            default:
-                Console.WriteLine("Invalid pattern choice.");
-                break;
         }
     }
 }
+
+
+
+
+//using System;
+
+//namespace StringUtilitiesApp
+//{
+//    // ✅ Utility class containing string helper methods
+//    public static class StringUtilities
+//    {
+//        // Count words in a string
+//        public static int CountWords(string input)
+//        {
+//            if (string.IsNullOrWhiteSpace(input))
+//                return 0;
+
+//            string[] words = input.Split(new char[] { ' ', '\t', '\n' },
+//                                          StringSplitOptions.RemoveEmptyEntries);
+//            return words.Length;
+//        }
+
+//        // Reverse a string
+//        public static string ReverseString(string input)
+//        {
+//            if (string.IsNullOrEmpty(input))
+//                return input;
+
+//            char[] charArray = input.ToCharArray();
+//            Array.Reverse(charArray);
+//            return new string(charArray);
+//        }
+
+//        // Check if a string is a palindrome
+//        public static bool IsPalindrome(string input)
+//        {
+//            if (string.IsNullOrEmpty(input))
+//                return false;
+
+//            string cleaned = RemoveSpaces(input).ToLower();
+//            string reversed = ReverseString(cleaned);
+//            return cleaned == reversed;
+//        }
+
+//        // Remove spaces from a string
+//        public static string RemoveSpaces(string input)
+//        {
+//            return string.IsNullOrEmpty(input) ? input : input.Replace(" ", "");
+//        }
+//    }
+
+//    // ✅ Example usage / refactor previous assignments
+//    class Program
+//    {
+//        static void Main()
+//        {
+//            Console.WriteLine("=== String Utilities Demo ===");
+
+//            string text = "  Hello world from DotNet Core 9  ";
+//            Console.WriteLine($"Original: '{text}'");
+
+//            Console.WriteLine($"Word Count: {StringUtilities.CountWords(text)}");
+//            Console.WriteLine($"Reversed: {StringUtilities.ReverseString(text)}");
+//            Console.WriteLine($"Is Palindrome (\"madam\"): {StringUtilities.IsPalindrome("madam")}");
+//            Console.WriteLine($"Remove Spaces: '{StringUtilities.RemoveSpaces(text)}'");
+
+//            // ✅ Example of refactoring: reusing methods
+//            string palindromeTest = "Never odd or even";
+//            Console.WriteLine($"Is \"{palindromeTest}\" palindrome? {StringUtilities.IsPalindrome(palindromeTest)}");
+//        }
+//    }
+//}
+
+
+
+//using System;
+
+//class Program
+//{
+//    static void Main(string[] args)
+//    {
+//        bool exit = false;
+
+//        while (!exit)
+//        {
+//            Console.WriteLine("\n=== Assignment 6 Menu ===");
+//            Console.WriteLine("1. Print Multiplication Tables (1-10)");
+//            Console.WriteLine("2. Number Guessing Game (1-100)");
+//            Console.WriteLine("3. Sum of Even Numbers (1-100)");
+//            Console.WriteLine("4. Pattern Printing");
+//            Console.WriteLine("5. Exit");
+//            Console.Write("Choose an option (1-5): ");
+
+//            string choice = Console.ReadLine();
+
+//            switch (choice)
+//            {
+//                case "1":
+//                    PrintMultiplicationTables();
+//                    break;
+//                case "2":
+//                    NumberGuessingGame();
+//                    break;
+//                case "3":
+//                    SumEvenNumbers();
+//                    break;
+//                case "4":
+//                    PatternPrinting();
+//                    break;
+//                case "5":
+//                    exit = true;
+//                    Console.WriteLine("Exiting program. Goodbye!");
+//                    break;
+//                default:
+//                    Console.WriteLine("Invalid choice. Try again.");
+//                    break;
+//            }
+//        }
+//    }
+
+//    // === 1. Multiplication Tables (1-10) ===
+//    static void PrintMultiplicationTables()
+//    {
+//        Console.WriteLine("\n--- Multiplication Tables (1-10) ---");
+//        for (int i = 1; i <= 10; i++)
+//        {
+//            Console.WriteLine($"\nTable of {i}:");
+//            for (int j = 1; j <= 10; j++)
+//            {
+//                Console.WriteLine($"{i} x {j} = {i * j}");
+//            }
+//        }
+//    }
+
+//    // === 2. Number Guessing Game ===
+//    static void NumberGuessingGame()
+//    {
+//        Random rand = new Random();
+//        int secretNumber = rand.Next(1, 101);
+//        int attempts = 0;
+//        bool guessed = false;
+
+//        Console.WriteLine("\n--- Number Guessing Game ---");
+//        Console.WriteLine("Guess the number between 1 and 100!");
+
+//        while (!guessed)
+//        {
+//            Console.Write("Enter your guess: ");
+//            if (int.TryParse(Console.ReadLine(), out int guess))
+//            {
+//                attempts++;
+//                if (guess == secretNumber)
+//                {
+//                    Console.WriteLine($"🎉 Correct! You guessed it in {attempts} attempts.");
+//                    guessed = true;
+//                }
+//                else if (guess < secretNumber)
+//                {
+//                    Console.WriteLine("Too low! Try again.");
+//                }
+//                else
+//                {
+//                    Console.WriteLine("Too high! Try again.");
+//                }
+//            }
+//            else
+//            {
+//                Console.WriteLine("Invalid input. Please enter a number.");
+//            }
+//        }
+//    }
+
+//    // === 3. Sum of Even Numbers ===
+//    static void SumEvenNumbers()
+//    {
+//        int sum = 0;
+//        for (int i = 2; i <= 100; i += 2)
+//        {
+//            sum += i;
+//        }
+//        Console.WriteLine($"\nSum of even numbers between 1 and 100: {sum}");
+//    }
+
+//    // === 4. Pattern Printing ===
+//    static void PatternPrinting()
+//    {
+//        Console.WriteLine("\n--- Pattern Printing ---");
+//        Console.WriteLine("1. Right-Angled Triangle");
+//        Console.WriteLine("2. Diamond");
+//        Console.Write("Choose a pattern (1-2): ");
+//        string choice = Console.ReadLine();
+
+//        Console.Write("Enter number of rows: ");
+//        int rows = Convert.ToInt32(Console.ReadLine());
+
+//        switch (choice)
+//        {
+//            case "1":
+//                for (int i = 1; i <= rows; i++)
+//                {
+//                    Console.WriteLine(new string('*', i));
+//                }
+//                break;
+
+//            case "2":
+//                // Upper part
+//                for (int i = 1; i <= rows; i++)
+//                {
+//                    Console.Write(new string(' ', rows - i));
+//                    Console.WriteLine(new string('*', 2 * i - 1));
+//                }
+//                // Lower part
+//                for (int i = rows - 1; i >= 1; i--)
+//                {
+//                    Console.Write(new string(' ', rows - i));
+//                    Console.WriteLine(new string('*', 2 * i - 1));
+//                }
+//                break;
+
+//            default:
+//                Console.WriteLine("Invalid pattern choice.");
+//                break;
+//        }
+//    }
+//}
 
 
 

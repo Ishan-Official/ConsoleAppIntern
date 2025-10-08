@@ -1,179 +1,311 @@
-﻿using System;
+﻿
+using System;
 
-namespace StudentGradeManagementSystem
+namespace Assignment11
 {
+    // Car class definition
+    class Car
+    {
+        // Properties
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public int Year { get; set; }
+        public string Color { get; set; }
+
+        // Constructor
+        public Car(string make, string model, int year, string color)
+        {
+            Make = make;
+            Model = model;
+            Year = year;
+            Color = color;
+        }
+
+        // Methods
+        public void Start()
+        {
+            Console.WriteLine($"{Make} {Model} is starting...");
+        }
+
+        public void Stop()
+        {
+            Console.WriteLine($"{Make} {Model} has stopped.");
+        }
+
+        public void Accelerate()
+        {
+            Console.WriteLine($"{Make} {Model} is accelerating!");
+        }
+
+        public void GetInfo()
+        {
+            Console.WriteLine($"Car Info: {Year} {Color} {Make} {Model}");
+        }
+    }
+
+    // Book class definition
+    class Book
+    {
+        // Properties
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public string ISBN { get; set; }
+        public bool IsAvailable { get; set; }
+
+        // Constructor
+        public Book(string title, string author, string isbn)
+        {
+            Title = title;
+            Author = author;
+            ISBN = isbn;
+            IsAvailable = true; // default to available
+        }
+
+        // Methods
+        public void Borrow()
+        {
+            if (IsAvailable)
+            {
+                IsAvailable = false;
+                Console.WriteLine($"You have borrowed \"{Title}\" by {Author}.");
+            }
+            else
+            {
+                Console.WriteLine($"Sorry, \"{Title}\" is not available right now.");
+            }
+        }
+
+        public void ReturnBook()
+        {
+            IsAvailable = true;
+            Console.WriteLine($"You have returned \"{Title}\".");
+        }
+
+        public void DisplayInfo()
+        {
+            string status = IsAvailable ? "Available" : "Not Available";
+            Console.WriteLine($"Book Info: \"{Title}\" by {Author}, ISBN: {ISBN}, Status: {status}");
+        }
+    }
+
+    // Main program to test the classes
     class Program
     {
-        // Maximum number of students allowed
-        const int MAX_STUDENTS = 50;
-
-        // Arrays to store student names and grades
-        static string[] studentNames = new string[MAX_STUDENTS];
-        static double[,] studentGrades = new double[MAX_STUDENTS, 5]; // max 5 subjects
-        static int studentCount = 0;
-
         static void Main(string[] args)
         {
-            int choice;
+            Console.WriteLine("=== Car Class Demo ===");
+            Car car1 = new Car("Toyota", "Corolla", 2021, "Red");
+            Car car2 = new Car("Tesla", "Model 3", 2024, "Black");
 
-            do
-            {
-                Console.Clear();
-                Console.WriteLine("=== Student Grade Management System ===");
-                Console.WriteLine("1. Add Student");
-                Console.WriteLine("2. Enter Grades");
-                Console.WriteLine("3. Calculate Average");
-                Console.WriteLine("4. Display Report");
-                Console.WriteLine("5. Exit");
-                Console.Write("Enter your choice: ");
+            car1.Start();
+            car1.Accelerate();
+            car1.GetInfo();
+            car1.Stop();
 
-                // Input validation
-                if (!int.TryParse(Console.ReadLine(), out choice))
-                {
-                    Console.WriteLine("Invalid input. Please enter a number.");
-                    Console.ReadKey();
-                    continue;
-                }
+            Console.WriteLine();
 
-                switch (choice)
-                {
-                    case 1:
-                        AddStudent();
-                        break;
-                    case 2:
-                        EnterGrades();
-                        break;
-                    case 3:
-                        CalculateAverage();
-                        break;
-                    case 4:
-                        DisplayReport();
-                        break;
-                    case 5:
-                        Console.WriteLine("Exiting... Goodbye!");
-                        break;
-                    default:
-                        Console.WriteLine("Invalid choice. Try again.");
-                        break;
-                }
+            car2.Start();
+            car2.Accelerate();
+            car2.GetInfo();
+            car2.Stop();
 
-                if (choice != 5)
-                {
-                    Console.WriteLine("\nPress any key to return to the menu...");
-                    Console.ReadKey();
-                }
+            Console.WriteLine("\n=== Book Class Demo ===");
+            Book book1 = new Book("The Alchemist", "Paulo Coelho", "978-0061122415");
+            Book book2 = new Book("1984", "George Orwell", "978-0451524935");
 
-            } while (choice != 5);
-        }
+            book1.DisplayInfo();
+            book2.DisplayInfo();
 
-        // Add new student
-        static void AddStudent()
-        {
-            if (studentCount >= MAX_STUDENTS)
-            {
-                Console.WriteLine("Maximum student limit reached!");
-                return;
-            }
+            book1.Borrow();
+            book1.DisplayInfo();
 
-            Console.Write("Enter student name: ");
-            string name = Console.ReadLine();
+            book1.ReturnBook();
+            book1.DisplayInfo();
 
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                Console.WriteLine("Name cannot be empty.");
-                return;
-            }
-
-            studentNames[studentCount] = name;
-            studentCount++;
-            Console.WriteLine($"Student '{name}' added successfully.");
-        }
-
-        // Enter grades for a student
-        static void EnterGrades()
-        {
-            if (studentCount == 0)
-            {
-                Console.WriteLine("No students available. Please add a student first.");
-                return;
-            }
-
-            Console.Write("Enter student index (0 - " + (studentCount - 1) + "): ");
-            if (!int.TryParse(Console.ReadLine(), out int index) || index < 0 || index >= studentCount)
-            {
-                Console.WriteLine("Invalid student index.");
-                return;
-            }
-
-            Console.WriteLine($"Entering grades for {studentNames[index]}:");
-
-            for (int i = 0; i < 5; i++)
-            {
-                Console.Write($"Enter grade for subject {i + 1} (0-100, or -1 to skip): ");
-                if (!double.TryParse(Console.ReadLine(), out double grade) || grade < -1 || grade > 100)
-                {
-                    Console.WriteLine("Invalid grade. Please enter a number between 0-100, or -1 to skip.");
-                    i--; // retry
-                    continue;
-                }
-
-                if (grade == -1) break; // stop entering grades
-                studentGrades[index, i] = grade;
-            }
-        }
-
-        // Calculate average grade for each student
-        static void CalculateAverage()
-        {
-            if (studentCount == 0)
-            {
-                Console.WriteLine("No students available.");
-                return;
-            }
-
-            Console.WriteLine("=== Student Averages ===");
-            for (int i = 0; i < studentCount; i++)
-            {
-                double total = 0;
-                int count = 0;
-
-                for (int j = 0; j < 5; j++)
-                {
-                    if (studentGrades[i, j] > 0)
-                    {
-                        total += studentGrades[i, j];
-                        count++;
-                    }
-                }
-
-                double average = count > 0 ? total / count : 0;
-                Console.WriteLine($"{studentNames[i]} - Average: {average:F2}");
-            }
-        }
-
-        // Display student report with grades
-        static void DisplayReport()
-        {
-            if (studentCount == 0)
-            {
-                Console.WriteLine("No students available.");
-                return;
-            }
-
-            Console.WriteLine("=== Student Report ===");
-            for (int i = 0; i < studentCount; i++)
-            {
-                Console.Write($"{i}. {studentNames[i]} - Grades: ");
-                for (int j = 0; j < 5; j++)
-                {
-                    if (studentGrades[i, j] > 0)
-                        Console.Write(studentGrades[i, j] + " ");
-                }
-                Console.WriteLine();
-            }
+            Console.WriteLine("\nProgram completed successfully!");
         }
     }
 }
+
+
+
+
+//using System;
+
+//namespace StudentGradeManagementSystem
+//{
+//    class Program
+//    {
+//        // Maximum number of students allowed
+//        const int MAX_STUDENTS = 50;
+
+//        // Arrays to store student names and grades
+//        static string[] studentNames = new string[MAX_STUDENTS];
+//        static double[,] studentGrades = new double[MAX_STUDENTS, 5]; // max 5 subjects
+//        static int studentCount = 0;
+
+//        static void Main(string[] args)
+//        {
+//            int choice;
+
+//            do
+//            {
+//                Console.Clear();
+//                Console.WriteLine("=== Student Grade Management System ===");
+//                Console.WriteLine("1. Add Student");
+//                Console.WriteLine("2. Enter Grades");
+//                Console.WriteLine("3. Calculate Average");
+//                Console.WriteLine("4. Display Report");
+//                Console.WriteLine("5. Exit");
+//                Console.Write("Enter your choice: ");
+
+//                // Input validation
+//                if (!int.TryParse(Console.ReadLine(), out choice))
+//                {
+//                    Console.WriteLine("Invalid input. Please enter a number.");
+//                    Console.ReadKey();
+//                    continue;
+//                }
+
+//                switch (choice)
+//                {
+//                    case 1:
+//                        AddStudent();
+//                        break;
+//                    case 2:
+//                        EnterGrades();
+//                        break;
+//                    case 3:
+//                        CalculateAverage();
+//                        break;
+//                    case 4:
+//                        DisplayReport();
+//                        break;
+//                    case 5:
+//                        Console.WriteLine("Exiting... Goodbye!");
+//                        break;
+//                    default:
+//                        Console.WriteLine("Invalid choice. Try again.");
+//                        break;
+//                }
+
+//                if (choice != 5)
+//                {
+//                    Console.WriteLine("\nPress any key to return to the menu...");
+//                    Console.ReadKey();
+//                }
+
+//            } while (choice != 5);
+//        }
+
+//        // Add new student
+//        static void AddStudent()
+//        {
+//            if (studentCount >= MAX_STUDENTS)
+//            {
+//                Console.WriteLine("Maximum student limit reached!");
+//                return;
+//            }
+
+//            Console.Write("Enter student name: ");
+//            string name = Console.ReadLine();
+
+//            if (string.IsNullOrWhiteSpace(name))
+//            {
+//                Console.WriteLine("Name cannot be empty.");
+//                return;
+//            }
+
+//            studentNames[studentCount] = name;
+//            studentCount++;
+//            Console.WriteLine($"Student '{name}' added successfully.");
+//        }
+
+//        // Enter grades for a student
+//        static void EnterGrades()
+//        {
+//            if (studentCount == 0)
+//            {
+//                Console.WriteLine("No students available. Please add a student first.");
+//                return;
+//            }
+
+//            Console.Write("Enter student index (0 - " + (studentCount - 1) + "): ");
+//            if (!int.TryParse(Console.ReadLine(), out int index) || index < 0 || index >= studentCount)
+//            {
+//                Console.WriteLine("Invalid student index.");
+//                return;
+//            }
+
+//            Console.WriteLine($"Entering grades for {studentNames[index]}:");
+
+//            for (int i = 0; i < 5; i++)
+//            {
+//                Console.Write($"Enter grade for subject {i + 1} (0-100, or -1 to skip): ");
+//                if (!double.TryParse(Console.ReadLine(), out double grade) || grade < -1 || grade > 100)
+//                {
+//                    Console.WriteLine("Invalid grade. Please enter a number between 0-100, or -1 to skip.");
+//                    i--; // retry
+//                    continue;
+//                }
+
+//                if (grade == -1) break; // stop entering grades
+//                studentGrades[index, i] = grade;
+//            }
+//        }
+
+//        // Calculate average grade for each student
+//        static void CalculateAverage()
+//        {
+//            if (studentCount == 0)
+//            {
+//                Console.WriteLine("No students available.");
+//                return;
+//            }
+
+//            Console.WriteLine("=== Student Averages ===");
+//            for (int i = 0; i < studentCount; i++)
+//            {
+//                double total = 0;
+//                int count = 0;
+
+//                for (int j = 0; j < 5; j++)
+//                {
+//                    if (studentGrades[i, j] > 0)
+//                    {
+//                        total += studentGrades[i, j];
+//                        count++;
+//                    }
+//                }
+
+//                double average = count > 0 ? total / count : 0;
+//                Console.WriteLine($"{studentNames[i]} - Average: {average:F2}");
+//            }
+//        }
+
+//        // Display student report with grades
+//        static void DisplayReport()
+//        {
+//            if (studentCount == 0)
+//            {
+//                Console.WriteLine("No students available.");
+//                return;
+//            }
+
+//            Console.WriteLine("=== Student Report ===");
+//            for (int i = 0; i < studentCount; i++)
+//            {
+//                Console.Write($"{i}. {studentNames[i]} - Grades: ");
+//                for (int j = 0; j < 5; j++)
+//                {
+//                    if (studentGrades[i, j] > 0)
+//                        Console.Write(studentGrades[i, j] + " ");
+//                }
+//                Console.WriteLine();
+//            }
+//        }
+//    }
+//}
 
 
 
